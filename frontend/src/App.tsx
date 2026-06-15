@@ -451,16 +451,6 @@ export default function App() {
         </div>
 
         <div className="space-y-4 pt-6 border-t border-slate-800">
-          <div>
-            <label className="block text-[10px] uppercase tracking-wider text-slate-500 mb-1">Paystack Public Key</label>
-            <input 
-              type="text" value={paystackPublicKey} onChange={e => {
-                setPaystackPublicKey(e.target.value);
-                localStorage.setItem('PAYSTACK_PUBLIC_KEY', e.target.value);
-              }}
-              className="w-full bg-slate-900 text-xs border border-slate-800 rounded px-2 py-1 focus:outline-none" 
-            />
-          </div>
           <button onClick={() => setCurrentUser(null)} className="w-full text-center py-2 px-3 rounded-lg text-sm font-semibold border border-rose-500/20 hover:bg-rose-500/10 text-rose-400 transition-all">
             Sign Out
           </button>

@@ -16,28 +16,43 @@ app.use(express.json());
 // Port - changed to 5050 to avoid conflict with services like TunnelBear on port 5000
 const PORT = process.env.PORT || 5050;
 
-// Local JSON Database fallback setup
-const DB_FILE = path.resolve('database.json');
-if (!fs.existsSync(DB_FILE)) {
-  fs.writeFileSync(DB_FILE, JSON.stringify({
-    users: [],
-    events: [],
-    bookings: [],
-    messages: [],
-    reviews: []
-  }, null, 2));
+// Local JSON Database fallback setup (uses writeable /tmp on Vercel)
+const DB_FILE = process.env.NODE_ENV === 'production' 
+  ? path.join('/tmp', 'database.json') 
+  : path.resolve('database.json');
+
+function initDbFile() {
+  try {
+    if (!fs.existsSync(DB_FILE)) {
+      fs.writeFileSync(DB_FILE, JSON.stringify({
+        users: [],
+        events: [],
+        bookings: [],
+        messages: [],
+        reviews: []
+      }, null, 2));
+    }
+  } catch (err) {
+    console.error('Failed to initialize local JSON database file:', err.message);
+  }
 }
 
 const dbJson = {
   read: () => {
     try {
+      initDbFile();
       return JSON.parse(fs.readFileSync(DB_FILE, 'utf8'));
     } catch (e) {
       return { users: [], events: [], bookings: [], messages: [], reviews: [] };
     }
   },
   write: (data) => {
-    fs.writeFileSync(DB_FILE, JSON.stringify(data, null, 2));
+    try {
+      initDbFile();
+      fs.writeFileSync(DB_FILE, JSON.stringify(data, null, 2));
+    } catch (e) {
+      console.error('Failed to write local JSON database:', e.message);
+    }
   }
 };
 
